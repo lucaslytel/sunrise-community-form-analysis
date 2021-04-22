@@ -1,0 +1,60 @@
+---
+title: "Sunrise Hub Project"
+author: "Lucas Lytel"
+date: "4/13/2020"
+output:
+  pdf_document: default
+  html_document: default
+---
+By providing access to personal ActBlue fundraising pages and TrueLink debit cards, the Sunrise Hub Finance System (HFS) allows hubs to raise and spend their own funds while simultaneously allowing the national organization to track these funds, thereby ensuring compliance. Since December of 2019, the HFS has grown more than four-fold, with 88 hubs currently implementing the system. Still, with close to 400 Sunrise hubs in total, onboarding remains a priority. HFS onboarding has been streamlined with that in mind to allow for bulk processing of new applicants. Additionally, the HFS has processed a total of ***$156,658.69*** funds since it’s launch in August, 2019, with an average of ***$11,189.76*** per month, allowing Sunrise to decentralize with self-sufficient hubs across the country.
+\newline
+\newline
+\newline
+\newline
+```{r pressure, echo = FALSE, message = FALSE, warning=FALSE}
+library(ggplot2)
+library(lubridate)
+library(readr)
+
+data <- read_csv("Sunrise Movement Project - Hub Accounts by Month.csv")
+colnames(data) <- c("Month","Hubs_Created","Total_Hubs","Amount_Raised_by_Month", "Total_Raised")
+
+sun_data <- data
+sun_data$Month <- mdy(sun_data$Month)
+sun_data <- remove_missing(sun_data)
+
+sun_data$Total_Raised <- parse_number(sun_data$Total_Raised)
+
+sun_data$Amount_Raised_by_Month <- parse_number(sun_data$Amount_Raised_by_Month)
+
+
+
+```
+```{r plots, echo = FALSE,fig.align='center'}
+f <- ggplot(data = sun_data, aes(x = Month)) +
+  geom_col(aes(y = Total_Hubs*1500), fill = "#FFDE16", color = "black") + 
+  geom_line(aes(y = Total_Raised), color = "black", lwd = 1.15) +
+  geom_point(aes(y= Total_Raised), color = "black") +
+  scale_y_continuous(name = "Total Raised (Line)", labels = scales::dollar,
+  sec.axis = sec_axis(trans = ~./1500, name = "Totals Hubs (Bar)")) +
+  ggtitle("Sunrise Community Forms Fundraising") +
+  theme(plot.title = element_text(hjust = .5), 
+        panel.background = element_rect(fill = "White", color = "Black"))
+
+f
+
+```
+
+```{r table of avg donation, echo = FALSE, results = 'asis', message = FALSE,fig.asp=-1}
+library(knitr)
+library(dplyr)
+library(scales)
+library(kableExtra)
+top_hubs <- read_csv("TopRaisingHubs.csv")
+colnames(top_hubs) <- c("Form Title", "Community Name", "Total Raised")
+top_hubs[1,1] <- "Sunrise Bay Area COVID-19"
+
+kable(head(top_hubs), caption = "Top 5 Raising Hubs") %>% row_spec(0,bold = T) %>% kable_styling(full_width = T, font_size = 10, latex_options = "HOLD_position")
+
+
+```
